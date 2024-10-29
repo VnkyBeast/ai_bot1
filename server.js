@@ -18,26 +18,26 @@ app.get('/', (req, res) => {
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
-    console.log('User Message:', userMessage);
+
+    console.log('User Message:', userMessage); // Log user message
 
     try {
-        // Generate a response from OpenAI
         const response = await openai.Completion.create({
             model: "text-davinci-003",
             prompt: userMessage,
             max_tokens: 150,
         });
 
-        // Check if response is defined and log the full response
-        console.log('API Response:', response); // Log the full API response
+        console.log('API Response:', response); // Log the API response
+
         if (response && response.choices && response.choices.length > 0) {
             const reply = response.choices[0].text.trim();
-            res.json({ reply });
+            return res.json({ reply });
         } else {
-            res.json({ reply: 'No response from AI' }); // Handle undefined cases
+            return res.json({ reply: 'No response from AI' });
         }
     } catch (error) {
-        console.error('Error:', error); // Log any errors
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error:', error); // Log the error
+        return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 });

@@ -20,7 +20,7 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const fetch = (await import('node-fetch')).default;  // Dynamic import here
-         const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-v0.1',{
+         const response = await fetch('https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B',{
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

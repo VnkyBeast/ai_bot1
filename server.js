@@ -20,7 +20,7 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const fetch = (await import('node-fetch')).default; // Dynamic import
-        const response = await fetch('https://api-inference.huggingface.co/models/meta-llama/CodeLlama-7B-hf', { // Use the Code Llama model endpoint
+        const response = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', { // Use the Code Llama model endpoint
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

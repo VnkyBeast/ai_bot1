@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const openai = require('openai'); // Make sure to have this package installed
 require('dotenv').config();
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html'); // Adjust the path as necessary
+});
 
 const app = express();
 app.use(bodyParser.json());

@@ -1,21 +1,13 @@
 const express = require('express');
-const path = require('path');
-const openai = require('openai');
+const bodyParser = require('body-parser');
+const openai = require('openai'); // Make sure to have this package installed
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+app.use(bodyParser.json());
 
-// Middleware
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+openai.apiKey = process.env.OPENAI_API_KEY; // Ensure you have this in your .env file
 
-// Serve the index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Chat endpoint
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
@@ -34,10 +26,17 @@ app.post('/api/chat', async (req, res) => {
             const reply = response.choices[0].text.trim();
             return res.json({ reply });
         } else {
-            return res.json({ reply: 'No response from AI' });
+            console.error('No choices found in response');
+            return res.status(500).json({ error: 'No response from AI' });
         }
     } catch (error) {
-        console.error('Error:', error); // Log the error
+        console.error('Error:', error.message); // Log the error message
+        console.error('Full Error Details:', error); // Log full error details
         return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

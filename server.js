@@ -14,13 +14,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Chat endpoint using Hugging Face
+// Chat endpoint using Hugging Face Code Llama model
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
-        const fetch = (await import('node-fetch')).default;  // Dynamic import here
-         const response = await fetch('https://api-inference.huggingface.co/models/google/gemma-2-2b-jpn-it',{
+        const fetch = (await import('node-fetch')).default; // Dynamic import
+        const response = await fetch('https://api-inference.huggingface.co/models/meta-llama/CodeLlama-7B-hf', { // Use the Code Llama model endpoint
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

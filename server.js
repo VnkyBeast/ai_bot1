@@ -19,8 +19,8 @@ app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
-        const fetch = (await import('node-fetch')).default; // Dynamic import
-        const response = await fetch('https://api-inference.huggingface.co/models/EleutherAI/gpt-neox-20b', { 
+        const fetch = (await import('node-fetch')).default; 
+        const response = await fetch('https://api-inference.huggingface.co/models/OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5', { 
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

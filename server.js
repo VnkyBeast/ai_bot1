@@ -1,13 +1,19 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const openai = require('openai'); // Make sure to have this package installed
+const path = require('path');
+const openai = require('openai');
 require('dotenv').config();
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html'); // Adjust the path as necessary
-});
 
 const app = express();
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve the index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 openai.apiKey = process.env.OPENAI_API_KEY; // Ensure you have this in your .env file
 

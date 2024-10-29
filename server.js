@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fetch = require('node-fetch');
 require('dotenv').config();
 
 const app = express();
@@ -20,6 +19,7 @@ app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
+        const fetch = (await import('node-fetch')).default;  // Dynamic import here
         const response = await fetch('https://api-inference.huggingface.co/models/gpt2', {
             method: 'POST',
             headers: {

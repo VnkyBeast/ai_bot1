@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
+    console.log('User Message:', userMessage);
 
     try {
         // Generate a response from OpenAI
@@ -27,16 +28,16 @@ app.post('/api/chat', async (req, res) => {
             max_tokens: 150,
         });
 
-        // Extract the text response
-        const reply = response.choices[0].text.trim();
-        res.json({ reply });
+        // Check if response is defined and log the full response
+        console.log('API Response:', response); // Log the full API response
+        if (response && response.choices && response.choices.length > 0) {
+            const reply = response.choices[0].text.trim();
+            res.json({ reply });
+        } else {
+            res.json({ reply: 'No response from AI' }); // Handle undefined cases
+        }
     } catch (error) {
-        console.error(error);
+        console.error('Error:', error); // Log any errors
         res.status(500).json({ error: 'Internal Server Error' });
     }
-});
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });

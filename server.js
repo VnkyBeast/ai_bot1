@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const openai = require('openai');
+const fetch = require('node-fetch');
 require('dotenv').config();
 
 const app = express();
@@ -15,23 +15,29 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Chat endpoint
+// Chat endpoint using Hugging Face
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
-        // Generate a response from OpenAI
-        const response = await openai.Completion.create({
-            model: "text-davinci-003",
-            prompt: userMessage,
-            max_tokens: 150,
+        const response = await fetch('https://api-inference.huggingface.co/models/gpt2', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ inputs: userMessage }),
         });
 
-        // Extract the text response
-        const reply = response.choices[0].text.trim();
-        res.json({ reply });
+        const data = await response.json();
+        if (data && data.length > 0) {
+            const reply = data[0].generated_text;
+            res.json({ reply });
+        } else {
+            res.status(500).json({ error: 'No response from model' });
+        }
     } catch (error) {
-        console.error(error);
+        console.error("Error:", error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

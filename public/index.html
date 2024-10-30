@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VnkyAI Chat Application</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             margin: 0;
@@ -23,7 +25,7 @@
         }
 
         #chat-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 50px auto;
             background: rgba(0, 0, 0, 0.85);
             border-radius: 15px;
@@ -33,7 +35,7 @@
 
         h1 {
             text-align: left;
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 20px;
             color: #ff66cc;
             font-family: 'Courier New', Courier, monospace;
@@ -44,14 +46,14 @@
         h1::after {
             content: 'Developed by Vinay Kumar Yadav';
             display: block;
-            font-size: 0.8rem;
-            color: #cccccc;
+            font-size: 1rem;
+            color: #ffccff;
             margin-top: 5px;
             text-align: left;
         }
 
         #chat-box {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             padding: 10px;
             margin-bottom: 20px;
@@ -61,14 +63,13 @@
         }
 
         #user-input {
-            width: calc(100% - 120px);
+            width: 100%;
             padding: 12px;
             border: 2px solid #ff66cc;
             border-radius: 5px;
-            margin-right: 10px;
             outline: none;
-            color: #ff66cc;
-            background-color: #333;
+            color: #000;
+            background-color: #f9f9f9;
         }
 
         #send-button {
@@ -109,51 +110,89 @@
     </style>
 </head>
 <body>
-    <div id="chat-container">
+    <div id="chat-container" class="container">
         <h1>Chat with VnkyAI</h1>
-        <div id="chat-box"></div>
-        <input type="text" id="user-input" placeholder="Type your message here...">
-        <button id="send-button">Send</button>
+        <div id="chat-box" class="mb-3"></div>
+        <div class="input-group">
+            <input type="text" id="user-input" class="form-control" placeholder="Type your message here...">
+            <div class="input-group-append">
+                <button id="send-button" class="btn">Send</button>
+            </div>
+        </div>
     </div>
-    <script>
-        document.getElementById('send-button').addEventListener('click', sendMessage);
-        document.getElementById('user-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
 
-        async function sendMessage() {
-            const userInput = document.getElementById('user-input').value.trim();
-            if (!userInput) return;
+    <!-- React and Babel CDN -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-            // Display user message
-            appendMessage('You: ' + userInput, 'user');
-            document.getElementById('user-input').value = '';
+    <script type="text/babel">
+        function ChatApp() {
+            const [messages, setMessages] = React.useState([]);
+            const [userInput, setUserInput] = React.useState("");
 
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userInput }),
-                });
+            const sendMessage = async () => {
+                if (!userInput.trim()) return;
 
-                const data = await response.json();
-                appendMessage('VnkyAI: ' + data.reply, 'ai');
-            } catch (error) {
-                console.error('Error:', error);
-                appendMessage('VnkyAI: Sorry, I could not respond.', 'ai');
-            }
+                const userMessage = { sender: 'user', text: userInput.trim() };
+                setMessages([...messages, userMessage]);
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userInput }),
+                    });
+                    const data = await response.json();
+                    const aiMessage = { sender: 'ai', text: data.reply };
+                    setMessages((prevMessages) => [...prevMessages, aiMessage]);
+                } catch (error) {
+                    console.error('Error:', error);
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        { sender: 'ai', text: 'VnkyAI: Sorry, I could not respond.' },
+                    ]);
+                }
+
+                setUserInput("");
+            };
+
+            const handleEnterPress = (e) => {
+                if (e.key === 'Enter') sendMessage();
+            };
+
+            return (
+                <div id="chat-container">
+                    <h1>Chat with VnkyAI</h1>
+                    <div id="chat-box" className="mb-3">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={msg.sender === 'user' ? 'user' : 'ai'}>
+                                {msg.sender === 'user' ? 'You: ' : 'VnkyAI: '}
+                                {msg.text}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            id="user-input"
+                            className="form-control"
+                            placeholder="Type your message here..."
+                            value={userInput}
+                            onChange={(e) => setUserInput(e.target.value)}
+                            onKeyPress={handleEnterPress}
+                        />
+                        <div className="input-group-append">
+                            <button id="send-button" className="btn" onClick={sendMessage}>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
         }
 
-        // Function to append messages to chat box
-        function appendMessage(message, sender) {
-            const chatBox = document.getElementById('chat-box');
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            messageElement.classList.add(sender);
-
-            chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+        ReactDOM.render(<ChatApp />, document.getElementById('chat-container'));
     </script>
 </body>
 </html>

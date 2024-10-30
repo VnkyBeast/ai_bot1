@@ -14,13 +14,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Chat endpoint using Hugging Face Phi 3.5 model
+// Chat endpoint using Hugging Face Mistral model
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
         const fetch = (await import('node-fetch')).default; 
-        const response = await fetch('https://api-inference.huggingface.co/models/philipp/phi-3.5', { 
+        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B', { 
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -29,12 +29,21 @@ app.post('/api/chat', async (req, res) => {
             body: JSON.stringify({ inputs: userMessage }),
         });
 
+        // Check if response is OK
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API Error:", errorData);
+            return res.status(response.status).json({ error: errorData });
+        }
+
         const data = await response.json();
-        if (data && data.length > 0) {
+        console.log("Response Data:", data); // Log the entire response
+
+        if (data && data.length > 0 && data[0].generated_text) {
             const reply = data[0].generated_text;
             res.json({ reply });
         } else {
-            res.status(500).json({ error: 'No response from model' });
+            res.status(500).json({ error: 'No valid response from model' });
         }
     } catch (error) {
         console.error("Error:", error);

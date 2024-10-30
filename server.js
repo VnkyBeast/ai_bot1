@@ -14,13 +14,13 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Chat endpoint using Hugging Face Code Llama model
+// Chat endpoint using Hugging Face Phi 3.5 model
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
 
     try {
         const fetch = (await import('node-fetch')).default; 
-        const response = await fetch('https://api-inference.huggingface.co/models/CohereForAI/aya-expanse-8b', { 
+        const response = await fetch('https://api-inference.huggingface.co/models/philipp/phi-3.5', { 
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

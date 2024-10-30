@@ -20,7 +20,7 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const fetch = (await import('node-fetch')).default; 
-        const response = await fetch('https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision-Instruct', { 
+        const response = await fetch('https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B', { 
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

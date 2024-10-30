@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Application</title>
+    <title>VnkyAI Chat Application</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-image: url('https://lh3.googleusercontent.com/p/AF1QipP3J_U-DKPtiZmFld39_92wb0cBRqqutX3YFpff=s1360-w1360-h1020');
             background-size: cover;
             background-position: center;
@@ -25,16 +25,29 @@
         #chat-container {
             max-width: 600px;
             margin: 50px auto;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
         }
 
         h1 {
-            text-align: center;
-            font-size: 2.5rem;
+            text-align: left;
+            font-size: 2rem;
             margin-bottom: 20px;
+            color: #ff66cc;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        h1::after {
+            content: 'Developed by Vinay Kumar Yadav';
+            display: block;
+            font-size: 0.8rem;
+            color: #cccccc;
+            margin-top: 5px;
+            text-align: left;
         }
 
         #chat-box {
@@ -44,59 +57,71 @@
             margin-bottom: 20px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         #user-input {
             width: calc(100% - 120px);
-            padding: 10px;
-            border: none;
+            padding: 12px;
+            border: 2px solid #ff66cc;
             border-radius: 5px;
             margin-right: 10px;
+            outline: none;
+            color: #ff66cc;
+            background-color: #333;
         }
 
         #send-button {
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
-            background-color: #4CAF50;
+            background-color: #ff66cc;
             color: white;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
+            font-weight: bold;
         }
 
         #send-button:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
-        }
-
-        #chat-box div {
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 10px;
+            background-color: #ff33bb;
+            transform: scale(1.1);
         }
 
         #chat-box .user {
             text-align: right;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.2);
+            color: #ffccff;
+            background: rgba(255, 102, 204, 0.3);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         #chat-box .ai {
             text-align: left;
-            color: #00ff99;
-            background: rgba(0, 255, 153, 0.2);
+            color: #a3ffcc;
+            background: rgba(0, 255, 153, 0.3);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
     <div id="chat-container">
-        <h1>Chat with AI</h1>
+        <h1>Chat with VnkyAI</h1>
         <div id="chat-box"></div>
         <input type="text" id="user-input" placeholder="Type your message here...">
         <button id="send-button">Send</button>
     </div>
     <script>
-        document.getElementById('send-button').addEventListener('click', async () => {
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        async function sendMessage() {
             const userInput = document.getElementById('user-input').value.trim();
             if (!userInput) return;
 
@@ -105,34 +130,28 @@
             document.getElementById('user-input').value = '';
 
             try {
-                // Send request to backend
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: userInput }),
                 });
 
                 const data = await response.json();
-                appendMessage('AI: ' + data.reply, 'ai');
+                appendMessage('VnkyAI: ' + data.reply, 'ai');
             } catch (error) {
                 console.error('Error:', error);
-                appendMessage('AI: Sorry, I could not respond.', 'ai');
+                appendMessage('VnkyAI: Sorry, I could not respond.', 'ai');
             }
-        });
+        }
 
         // Function to append messages to chat box
         function appendMessage(message, sender) {
             const chatBox = document.getElementById('chat-box');
             const messageElement = document.createElement('div');
             messageElement.textContent = message;
-            messageElement.classList.add(sender); // Add sender class for styling
+            messageElement.classList.add(sender);
 
-            // Append the message element to chat box
             chatBox.appendChild(messageElement);
-
-            // Automatically scroll to the bottom of the chat box
             chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>

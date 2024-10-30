@@ -49,6 +49,7 @@
             font-size: 2.5rem;
             margin-bottom: 20px;
             text-align: center;
+            color: pink; /* Set text color to pink for dark mode */
             overflow: hidden; /* Prevents shaking */
         }
 
@@ -70,11 +71,13 @@
         .user {
             text-align: right;
             background: rgba(255, 102, 204, 0.3);
+            color: black; /* Set text color to black for user messages */
         }
 
         .ai {
             text-align: left;
             background: rgba(0, 255, 153, 0.3);
+            color: black; /* Set text color to black for AI messages */
         }
 
         #user-input {
@@ -98,38 +101,50 @@
             text-align: center; 
             margin-top: 10px; 
             font-size: .9rem; 
+            color: pink; /* Set footer text color to pink for dark mode */
         }
 
         /* Light mode styles */
         .light-mode {
             background-color: #f0f0f0;
-            color: #000; /* Text color for light mode */
+            color: black; /* Set default text color to black for light mode */
         }
 
         .light-mode #chat-container {
             background: rgba(255, 255, 255, 0.9); /* Light chat container */
         }
 
-        .light-mode h1, 
-        .light-mode .user, 
+        .light-mode h1 {
+            color: black; /* Set h1 text color to black for light mode */
+        }
+
+        .light-mode .user,
         .light-mode .ai {
-            color: black; /* Text color for light mode */
+            color: black; /* Set message text color to black for light mode */
+        }
+
+        .light-mode .footer {
+            color: black; /* Set footer text color to black for light mode */
         }
 
         /* Dark mode styles */
         .dark-mode {
             background-color: #303030;
-            color: #fff; /* Default text color for dark mode */
+            color: pink; /* Set default text color to pink for dark mode */
         }
 
         .dark-mode #chat-container {
             background: rgba(30, 30, 30, 0.85);
         }
 
-        .dark-mode h1, 
-        .dark-mode .user, 
+        .dark-mode h1,
+        .dark-mode .footer {
+            color: pink; /* Set h1 and footer text color to pink for dark mode */
+        }
+
+        .dark-mode .user,
         .dark-mode .ai {
-            color: pink; /* Text color for dark mode */
+            color: black; /* Set message text color to black for dark mode */
         }
     </style>
 </head>

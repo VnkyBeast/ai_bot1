@@ -20,7 +20,7 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const fetch = (await import('node-fetch')).default; 
-        const response = await fetch('https://api-inference.huggingface.co/models/gpt-omni/mini-omni2', { 
+        const response = await fetch('https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct', { 
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,

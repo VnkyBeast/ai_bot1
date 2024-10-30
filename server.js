@@ -1,9 +1,13 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const { HfInference } = require('@huggingface/inference');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Initialize Hugging Face Inference client with API key from .env
+const client = new HfInference(process.env.HUGGINGFACE_API_KEY);
 
 // Middleware
 app.use(express.json());
@@ -14,37 +18,31 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Chat endpoint using Hugging Face Mistral model
+// Chat endpoint using Hugging Face streaming
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
+    let output = "";
 
     try {
-        const fetch = (await import('node-fetch')).default; 
-        const response = await fetch('https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct', { 
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ inputs: userMessage }),
+        // Streaming response from Hugging Face model
+        const stream = client.chatCompletionStream({
+            model: "Qwen/Qwen2.5-72B-Instruct",
+            messages: [
+                { role: "user", content: userMessage }
+            ],
+            max_tokens: 500
         });
 
-        // Check if response is OK
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("API Error:", errorData);
-            return res.status(response.status).json({ error: errorData });
+        // Collect the response from the stream
+        for await (const chunk of stream) {
+            if (chunk.choices && chunk.choices.length > 0) {
+                const newContent = chunk.choices[0].delta.content;
+                output += newContent;
+                console.log(newContent); // Log the streamed content to console
+            }
         }
 
-        const data = await response.json();
-        console.log("Response Data:", data); // Log the entire response
-
-        if (data && Array.isArray(data) && data[0]?.generated_text) {
-            const reply = data[0].generated_text;
-            res.json({ reply });
-        } else {
-            res.status(500).json({ error: 'No valid response from model' });
-        }
+        res.json({ reply: output });
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: 'Internal Server Error' });

@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 
-// Load .env ONLY in local (optional safety)
+// Load .env ONLY in local development
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -11,7 +11,7 @@ const { HfInference } = require('@huggingface/inference');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Get token from environment (Render will inject this)
+// Get token from environment (Render will provide this)
 const HF_TOKEN = process.env.HF_TOKEN;
 
 if (!HF_TOKEN) {
@@ -31,37 +31,56 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Chat endpoint
+// ✅ Chat endpoint (NO STREAMING — stable)
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
-    let output = "";
 
     try {
-        const stream = client.chatCompletionStream({
+        // Primary method (chatCompletion)
+        const response = await client.chatCompletion({
             model: "Qwen/Qwen2.5-7B-Instruct",
             messages: [
                 { role: "user", content: userMessage }
             ],
-            max_tokens: 500
+            max_tokens: 300
         });
 
-        for await (const chunk of stream) {
-            if (chunk.choices && chunk.choices.length > 0) {
-                const newContent = chunk.choices[0]?.delta?.content || "";
-                output += newContent;
-                console.log(newContent);
-            }
+        const reply = response.choices?.[0]?.message?.content;
+
+        if (!reply) {
+            throw new Error("Empty response from model");
         }
 
-        res.json({ reply: output });
+        return res.json({ reply });
 
     } catch (error) {
-        console.error("Error:", error.message || error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error("⚠️ chatCompletion failed, trying fallback...", error.message);
+
+        try {
+            // ✅ Fallback method (textGeneration — more reliable)
+            const fallback = await client.textGeneration({
+                model: "Qwen/Qwen2.5-7B-Instruct",
+                inputs: userMessage,
+                parameters: {
+                    max_new_tokens: 200
+                }
+            });
+
+            return res.json({
+                reply: fallback.generated_text
+            });
+
+        } catch (fallbackError) {
+            console.error("❌ Fallback also failed:", fallbackError.message);
+
+            return res.status(500).json({
+                error: "Model unavailable or API failed"
+            });
+        }
     }
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });

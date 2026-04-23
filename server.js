@@ -38,7 +38,7 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         const stream = client.chatCompletionStream({
-            model: "Qwen/Qwen2.5-72B-Instruct",
+            model: "Qwen/Qwen2.5-7B-Instruct",
             messages: [
                 { role: "user", content: userMessage }
             ],
